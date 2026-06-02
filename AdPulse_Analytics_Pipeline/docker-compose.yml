@@ -1,0 +1,67 @@
+services:
+  adpulse-jupyter:
+    image: easewithdata/pyspark-jupyter:3.5.5
+    container_name: adpulse-jupyter
+    ports:
+        - 8888:8888
+        - 4040:4040
+        - 4041:4041
+    environment:
+        JUPYTER_PORT: 8888
+        SPARK_UI_PORT: 4040
+        JUPYTER_TOKEN: "spark123"
+    command: jupyter lab --notebook-dir=/data --ip=0.0.0.0 --port=8888 --no-browser --allow-root
+    volumes:
+        - ./notebooks:/data/notebooks:rw
+        - ./datasets:/data/datasets:rw
+        - ./outputs:/data/outputs:rw
+
+  adpulse-spark-master:
+    image: easewithdata/spark-master:3.5.5
+    container_name: adpulse-spark-master
+    ports:
+      - "8080:8080"
+      - "7077:7077"
+      - 15002:15002
+      - 4050:4050
+    environment:
+      - INIT_DAEMON_STEP=setup_spark
+    volumes:
+        - spark_data:/data:rw
+        - ./datasets:/datasets:rw
+        - ./outputs:/outputs:rw
+
+  adpulse-spark-worker-1:
+    image: easewithdata/spark-worker:3.5.5
+    container_name: adpulse-spark-worker-1
+    depends_on:
+      - adpulse-spark-master
+    ports:
+      - "8081:8081"
+    environment:
+      - "SPARK_MASTER=spark://adpulse-spark-master:7077"
+      - SPARK_WORKER_CORES=2
+      - SPARK_WORKER_MEMORY=1G
+    volumes:
+        - spark_data:/data:rw
+        - ./datasets:/datasets:rw
+        - ./outputs:/outputs:rw
+
+  adpulse-spark-worker-2:
+    image: easewithdata/spark-worker:3.5.5
+    container_name: adpulse-spark-worker-2
+    depends_on:
+      - adpulse-spark-master
+    ports:
+      - "8082:8081"
+    environment:
+      - "SPARK_MASTER=spark://adpulse-spark-master:7077"
+      - SPARK_WORKER_CORES=2
+      - SPARK_WORKER_MEMORY=1G
+    volumes:
+        - spark_data:/data:rw
+        - ./datasets:/datasets:rw
+        - ./outputs:/outputs:rw
+
+volumes:
+  spark_data:
