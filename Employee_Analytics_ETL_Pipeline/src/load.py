@@ -27,8 +27,8 @@ def create_table(conn):
         print(f"[LOAD] Creating tables...")
         cursor = conn.cursor()
 
-        cursor.excute(''' 
-            CREATE TABLE IF NOT EXITS employee (
+        cursor.execute(''' 
+            CREATE TABLE IF NOT EXISTS employee (
                       id INTEGER PRIMARY KEY,
                       name TEXT NOT NULL,
                       age INTEGER,
@@ -50,7 +50,7 @@ def create_table(conn):
 
         # Create department summary table
         cursor.execute('''
-            CREATE TABLE IF NOT EXITS department_summary (
+            CREATE TABLE IF NOT EXISTS department_summary (
                        department TEXT PRIMARY KEY,
                        emp_count INTEGER,
                        avg_salary REAL,
@@ -63,7 +63,7 @@ def create_table(conn):
         print(f"[LOAD] Created 'department_summary' table")   
 
         cursor.execute('''
-                CREATE TABLE IF NOT EXITS monthly_report (
+                CREATE TABLE IF NOT EXISTS monthly_report (
                        year INTEGER,
                        month INTEGER,
                        total_employee INTEGER,
@@ -127,7 +127,7 @@ def load_monthly_report(df,conn):
 
         # Flatten columns names
 
-        monthly,columns = ['total_employees','avg_salary','total_salary']
+        monthly.columns = ['total_employees','avg_salary','total_salary']
 
         monthly = monthly.reset_index()
 
