@@ -7,6 +7,7 @@ it handles data cleaning, validate, and enrichment
 
 import pandas as pd
 import numpy as np
+import os
 from datetime import datetime
 
 def clean_data(df):
@@ -45,7 +46,7 @@ def clean_data(df):
                 df[col] = df[col].str.strip()
                 df[col] = df[col].str.title()
 
-        print(f"[TRASFROM] Data cleaning completed")
+        print(f"[TRANSFORM] Data cleaning completed")
         print(f"[TRANSFORMED] final row count: {len(df)}")
 
         return df 
@@ -56,7 +57,7 @@ def clean_data(df):
 
 def validate_data(df):
     try:
-        print(f"[TRANSFROM] Starting data validation:" )
+        print(f"[TRANSFORM] Starting data validation:" )
 
         initial_rows = len(df)
 
@@ -64,8 +65,8 @@ def validate_data(df):
 
         if 'age' in df.columns:
             invalid_age = df[(df['age'] < 18 ) | (df['age'] > 65 )].shape[0]
-            df = df[(df['age'] >= 18 & (df['age'] <= 65))]
-            print(f"[TRANSFORM] Removed {invalid_age} rows with invalid salary")
+            df = df[(df['age'] >= 18) & (df['age'] <= 65)]
+            print(f"[TRANSFORM] Removed {invalid_age} rows with invalid age")
 
         # Validate salary (must be positive)
         if 'salary' in df.columns:
@@ -75,8 +76,8 @@ def validate_data(df):
 
         # Validate email format
         if 'email' in df.columns:
-            email_pattern = r'[^\w\._]+@[\w\._-]+\.\w+$'
-            valid_email = df['email'].str_match(email_pattern,na=False)
+            email_pattern = r'^[\w\.\-]+@[\w\.\-]+\.\w+$'
+            valid_email = df['email'].str.match(email_pattern,na=False)
             invalid_email = (~valid_email).sum()
             df = df[valid_email]
             print(f"[TRANSFORM] Removed {invalid_email} rows with invalid emails")
@@ -129,11 +130,11 @@ def enrich_data(df):
         return df
 
     except Exception as e:
-        print(f"[TRANSFORM] Data enrichement failed {str(e)}")  
+        print(f"[TRANSFORM] Data enrichment failed {str(e)}")  
         raise  
 
 
-def transform_data(df):
+def transform_data(df, save_staging=True, save_processed=True):
 
     try:
         print("[TRANSFORM] Starting transformation pipeline")
@@ -141,17 +142,29 @@ def transform_data(df):
 
         # Step -1 clean data
         df = clean_data(df)
-        print(f"[TRANSFORM] After clearning: {len(df)} rows")
+        print(f"[TRANSFORM] After cleaning: {len(df)} rows")
         
+        # Save cleaned data to staging
+        if save_staging:
+            os.makedirs('data/staging', exist_ok=True)
+            df.to_csv('data/staging/cleaned_data.csv', index=False)
+            print("[TRANSFORM] Saved cleaned data to data/staging/cleaned_data.csv")
+
         # Step -2 Validate data
-        df =  validate_data(df)
+        df = validate_data(df)
         print(f"[TRANSFORM] After validation : {len(df)} rows")
 
         # Step -3 Enrich Data
         df = enrich_data(df)
         print(f"[TRANSFORM] After enrichment : {len(df)} rows")
 
-        print(f"[TRANSFORM] Transform pipeline completed sucessfully")
+        # Save final processed data
+        if save_processed:
+            os.makedirs('data/processed', exist_ok=True)
+            df.to_csv('data/processed/final_data.csv', index=False)
+            print("[TRANSFORM] Saved final data to data/processed/final_data.csv")
+
+        print(f"[TRANSFORM] Transform pipeline completed successfully")
 
         return df
     
