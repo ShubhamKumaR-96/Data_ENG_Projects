@@ -1,7 +1,7 @@
 """
 extract.py - Data Extraction Module
 
-This module contains function to extarct data from CSV files
+This module contains function to extract data from CSV files
 it reads raw data and return pandas Dataframe
 """
 
@@ -42,7 +42,7 @@ def extract_data(file_path):
         df = pd.read_csv(file_path)
         print(f"[EXTRACT] Successfully read CSV file")
 
-        # Basic info about extarced data
+        # Basic info about extracted data
         rows,cols = df.shape
         print(f"[EXTRACT] Extracted {rows} and {cols} columns")
 
@@ -50,7 +50,7 @@ def extract_data(file_path):
         print(f"[EXTRACT] Columns: {list(df.columns)}")
 
         # Log data types
-        print(f"[EXTACT] Data types:")
+        print(f"[EXTRACT] Data types:")
         for col in df.columns:
             print(f" - {col}: {df[col].dtype}")
 
@@ -70,7 +70,7 @@ def extract_data(file_path):
         raise
 
     except Exception as e :
-        print(f"[EXTRACT] EROR: Extraction failed - {str(e)}")
+        print(f"[EXTRACT] ERROR: Extraction failed - {str(e)}")
         raise
 
 
@@ -81,21 +81,21 @@ def extract_multiple_files(folder_path,pattern='*.csv'):
 
         # Get all csv files in folder
 
-        files = [f for f in os.listdir(folder_path) if f.endsWith('.csv')]    
+        files = [f for f in os.listdir(folder_path) if f.endswith('.csv')]
 
         if not files:
             print(f"[EXTRACT WARNING: no CSV files found in {folder_path}]")
             return {}
         
         # Extract data from each file
-        dateframes = {}
+        dataframes = {}
         for file in files:
             file_path = os.path.join(folder_path,file)
             df = extract_data(file_path)
-            dateframes[file] = df
+            dataframes[file] = df
         
-        print(f"[EXTRACT] Extracted {len(dateframes)} files successfully")
-        return dateframes
+        print(f"[EXTRACT] Extracted {len(dataframes)} files successfully")
+        return dataframes
     
     except Exception as e:
         print(f"[EXTRACT] ERROR: Multiple extraction failed - {str(e)}")

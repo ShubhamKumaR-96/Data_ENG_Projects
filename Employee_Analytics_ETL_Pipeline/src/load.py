@@ -85,8 +85,8 @@ def load_employees(df,conn):
         print(f"[LOAD] Loading {len(df)} employee records")
 
         # Insert data using pandas to sql
-        df.to_sql('employees', conn, if_exists='replace',index=False)
-        print(f"[LOAD] Loaded {len(df)} records into 'employees' table")
+        df.to_sql('employee', conn, if_exists='replace',index=False)
+        print(f"[LOAD] Loaded {len(df)} records into 'employee' table")
 
     except Exception as e:
         print(f"[LOAD] Error : Employee loading  failed - {str(e)}")
@@ -133,7 +133,7 @@ def load_monthly_report(df,conn):
 
         monthly.to_sql('monthly_report',conn,if_exists='replace',index=False)
 
-        print(F"[LOAD] Loaded report for {len(monthly)} months")
+        print(f"[LOAD] Loaded report for {len(monthly)} months")
 
     except Exception as e:
         print(f"[LOAD] Error : Monthly report failed - {str(e)}")
@@ -162,7 +162,7 @@ def load_data(df,db_path='output/database/company.db'):
         raise
 
 
-def generate_report(db_path='/output/database/company.db'):
+def generate_report(db_path='output/database/company.db'):
 
     try:
         print(f"[LOAD] Generating reports...")
@@ -174,7 +174,7 @@ def generate_report(db_path='/output/database/company.db'):
         # Generate departments analysis report
         dept_df = pd.read_sql_query('SELECT * FROM department_summary',conn)
         dept_df.to_csv('output/reports/department_analysis.csv',index=False)
-        print(f"[LOAD] Generated departments_analysis.csv")
+        print(f"[LOAD] Generated department_analysis.csv")
 
         # Generate monthly report
         month_df = pd.read_sql_query('SELECT* FROM monthly_report',conn)
@@ -184,14 +184,14 @@ def generate_report(db_path='/output/database/company.db'):
         # Generate High salary employees report
         query = '''
             SELECT name, department, salary, salary_category
-            from employees
+            from employee
             where salary_category = 'High'
             ORDER BY salary DESC
         '''  
 
         high_salary_df = pd.read_sql_query(query,conn)
         high_salary_df.to_csv('output/reports/high_salary_employees.csv',index=False)
-        print('LOAD Generated high_salary_employees.csv')
+        print('[LOAD] Generated high_salary_employees.csv')
 
         conn.close()
 
